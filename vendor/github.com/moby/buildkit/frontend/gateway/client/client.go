@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/moby/buildkit/frontend/gateway/pb"
+	opspb "github.com/moby/buildkit/solver/pb"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -39,12 +40,12 @@ type Client struct {
 	sessionID string
 }
 
-func (c *Client) Solve(ctx context.Context, def [][]byte, exporterAttr map[string][]byte, final bool) (*Reference, error) {
+func (c *Client) Solve(ctx context.Context, def *opspb.Definition, frontend string, exporterAttr map[string][]byte, final bool) (*Reference, error) {
 	dt, err := json.Marshal(exporterAttr)
 	if err != nil {
 		return nil, err
 	}
-	req := &pb.SolveRequest{Definition: def, Final: final, ExporterAttr: dt}
+	req := &pb.SolveRequest{Definition: def, Frontend: frontend, Final: final, ExporterAttr: dt}
 	resp, err := c.client.Solve(ctx, req)
 	if err != nil {
 		return nil, err

@@ -51,12 +51,12 @@ func run() error {
 		llb.IncludePatterns([]string{filename}),
 		llb.SessionID(c.SessionID()),
 	)
-	dt, err := src.Marshal()
+	def, err := src.Marshal()
 	if err != nil {
 		return err
 	}
 
-	ref, err := c.Solve(ctx, dt, nil, false)
+	ref, err := c.Solve(ctx, def.ToPB(), "", nil, false)
 	if err != nil {
 		return err
 	}
@@ -70,13 +70,14 @@ func run() error {
 		Target:       opts[keyTarget],
 		MetaResolver: c,
 		BuildArgs:    filterBuildArgs(opts),
+		SessionID:    c.SessionID(),
 	})
 
 	if err != nil {
 		return err
 	}
 
-	dt, err = st.Marshal()
+	def, err = st.Marshal()
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func run() error {
 		return err
 	}
 
-	_, err = c.Solve(ctx, dt, map[string][]byte{
+	_, err = c.Solve(ctx, def.ToPB(), "", map[string][]byte{
 		exporterImageConfig: config,
 	}, true)
 	if err != nil {
